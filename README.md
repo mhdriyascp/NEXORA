@@ -15,8 +15,8 @@ the CRM domain layer, tenant isolation, or authorization.
 
 | Phase | Name | Status |
 |-------|------|--------|
-| **Phase 0** | Architecture | ✅ **In progress (this deliverable)** |
-| Phase 1 | Foundation (monorepo, apps, Docker Compose, health checks, CI) | ⏳ Not started |
+| **Phase 0** | Architecture | ✅ **Complete** |
+| Phase 1 | Foundation (monorepo, apps, Docker Compose, health checks, CI) | ✅ **Complete** |
 | Phase 2 | Authentication + Multi-Tenancy | ⏳ Not started |
 | Phase 3 | CRM Core | ⏳ Not started |
 | Phase 4 | Dashboard | ⏳ Not started |
@@ -111,8 +111,9 @@ Full rationale is recorded as Architecture Decision Records in
 
 ## Target Monorepo Structure
 
-The following layout is the **target** structure that Phase 1 will scaffold. It does not fully
-exist yet.
+The following layout is the structure Phase 1 scaffolds. Apps and shared
+packages now exist with health checks, tests, and CI; later phases fill in
+features.
 
 ```
 ai-crm/ (NEXORA)
@@ -144,26 +145,47 @@ ai-crm/ (NEXORA)
 
 ## Getting Started
 
-> ⚠️ Application scaffolding lands in **Phase 1**. Until then, this repository contains
-> architecture documentation only. The commands below describe the **intended** developer workflow.
+> Phase 1 (Foundation) is in place: all four apps run with health checks, tests, and CI.
+> Feature development (auth, CRM, AI) begins in Phase 2.
+
+### Option A — Docker Compose (full stack)
 
 ```bash
-# 1. Copy environment template and fill in local values
 cp .env.example .env
+docker compose up --build
+```
 
-# 2. Install workspace dependencies (Node/TS)
+### Option B — Local dev (per app)
+
+```bash
+# Install workspace dependencies (Node/TS)
 pnpm install
 
-# 3. Start infrastructure + services locally
-docker compose up
+# Build shared types, then run any app
+pnpm --filter @nexora/shared-types build
+pnpm --filter @nexora/api dev      # NestJS  → http://localhost:4000/api/v1/health  (docs: /api/docs)
+pnpm --filter @nexora/web dev      # Next.js → http://localhost:3000  (health: /api/health)
+pnpm --filter @nexora/worker dev   # Worker  → http://localhost:4100/health
 
-# Services (planned):
-#   web         → http://localhost:3000
-#   api         → http://localhost:4000  (Swagger at /api/docs)
-#   ai-service  → http://localhost:8000  (OpenAPI at /docs)
-#   postgres    → localhost:5432
-#   redis       → localhost:6379
+# AI service (Python)
+cd apps/ai-service && python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000   # http://localhost:8000/health  (docs: /docs)
 ```
+
+### Quality gates (run by CI)
+
+```bash
+pnpm -r run lint         # ESLint / next lint
+pnpm -r run typecheck    # tsc --noEmit
+pnpm -r run test         # Jest (api, worker)
+pnpm -r run build        # nest/next/tsc builds
+cd apps/ai-service && pytest   # FastAPI tests
+```
+
+Service ports (planned):
+`web` → 3000 · `api` → 4000 (Swagger `/api/docs`) · `ai-service` → 8000 (OpenAPI `/docs`) ·
+`worker` health → 4100 · `postgres` → 5432 · `redis` → 6379.
 
 See [.env.example](.env.example) for the full list of configuration variables. Real production
 secrets are managed via AWS Secrets Manager (or equivalent) and are **never** committed.
