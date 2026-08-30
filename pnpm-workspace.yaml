@@ -1,0 +1,17 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+allowBuilds:
+  '@nestjs/core': set this to true or false
+  '@scarf/scarf': set this to true or false
+  msgpackr-extract: set this to true or false
+  unrs-resolver: set this to true or false
+
+onlyBuiltDependencies:
+  - "@nestjs/core"
+  - "@scarf/scarf"
+  - "msgpackr-extract"
+  - "unrs-resolver"
+
+verifyDepsBeforeRun: false

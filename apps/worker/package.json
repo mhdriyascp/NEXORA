@@ -1,0 +1,32 @@
+{
+  "name": "@nexora/worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NEXORA background job processor (BullMQ)",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "ts-node src/main.ts",
+    "start": "node dist/main.js",
+    "lint": "eslint \"src/**/*.ts\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@nexora/shared-types": "workspace:*",
+    "bullmq": "^5.28.1",
+    "ioredis": "^5.4.1",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "@nexora/eslint-config": "workspace:*",
+    "@nexora/typescript-config": "workspace:*",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.9.0",
+    "eslint": "^9.14.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
