@@ -23,6 +23,41 @@ export class AiService {
     tenantId: string,
     dto: ChatRequestDto,
   ): Promise<unknown> {
+    return this.post("/v1/ai/chat", {
+      tenant_id: tenantId,
+      conversation_id: dto.conversationId ?? null,
+      messages: dto.messages,
+    });
+  }
+
+  async ragQuery(
+    tenantId: string,
+    query: string,
+    topK: number,
+  ): Promise<unknown> {
+    return this.post("/v1/ai/rag/query", {
+      tenant_id: tenantId,
+      query,
+      top_k: topK,
+    });
+  }
+
+  async ingestDocument(
+    tenantId: string,
+    documentId: string,
+    text: string,
+    metadata: Record<string, string>,
+  ): Promise<unknown> {
+    return this.post("/v1/ai/documents", {
+      tenant_id: tenantId,
+      document_id: documentId,
+      text,
+      metadata,
+    });
+  }
+
+  /** Forward a request to the AI service with the internal service token. */
+  private async post(path: string, payload: unknown): Promise<unknown> {
     const baseUrl = this.config.get("aiServiceUrl", { infer: true });
     const token = this.config.get("aiServiceToken", { infer: true });
 
@@ -35,14 +70,10 @@ export class AiService {
 
     let response: Response;
     try {
-      response = await fetch(`${baseUrl}/v1/ai/chat`, {
+      response = await fetch(`${baseUrl}${path}`, {
         method: "POST",
         headers,
-        body: JSON.stringify({
-          tenant_id: tenantId,
-          conversation_id: dto.conversationId ?? null,
-          messages: dto.messages,
-        }),
+        body: JSON.stringify(payload),
       });
     } catch (error) {
       this.logger.error(`AI service unreachable: ${String(error)}`);

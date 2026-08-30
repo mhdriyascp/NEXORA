@@ -16,9 +16,17 @@ from ..llm.factory import get_llm_provider
 from ..schemas_ai import (
     ChatRequest,
     ChatResponse,
+    DocumentIngestRequest,
+    DocumentIngestResponse,
     EmbeddingRequest,
     EmbeddingResponse,
+    RagQueryRequest,
+    RagQueryResponse,
+    RagSource,
+    UsageSchema,
 )
+from ..rag.factory import get_rag_service
+from ..rag.service import RagService
 from ..security import require_service_token
 from ..services.chat_service import ChatService
 
@@ -52,4 +60,49 @@ async def embeddings(
         provider=provider.name,
         dimensions=provider.dimensions,
         vectors=vectors,
+    )
+
+
+@router.post("/documents", response_model=DocumentIngestResponse)
+async def ingest_document(
+    request: DocumentIngestRequest,
+    service: RagService = Depends(get_rag_service),
+) -> DocumentIngestResponse:
+    """Chunk, embed and index a tenant document for retrieval."""
+    count = await service.ingest(
+        tenant_id=request.tenant_id,
+        document_id=request.document_id,
+        text=request.text,
+        metadata=request.metadata,
+    )
+    return DocumentIngestResponse(
+        document_id=request.document_id, chunks_indexed=count
+    )
+
+
+@router.post("/rag/query", response_model=RagQueryResponse)
+async def rag_query(
+    request: RagQueryRequest,
+    service: RagService = Depends(get_rag_service),
+) -> RagQueryResponse:
+    """Answer a question grounded in the tenant's indexed documents."""
+    answer, hits, usage = await service.answer(
+        tenant_id=request.tenant_id, query=request.query, top_k=request.top_k
+    )
+    return RagQueryResponse(
+        answer=answer,
+        sources=[
+            RagSource(
+                document_id=hit.document_id,
+                chunk_index=hit.chunk_index,
+                score=hit.score,
+                content=hit.content,
+            )
+            for hit in hits
+        ],
+        usage=UsageSchema(
+            prompt_tokens=usage.prompt_tokens,
+            completion_tokens=usage.completion_tokens,
+            total_tokens=usage.total_tokens,
+        ),
     )
