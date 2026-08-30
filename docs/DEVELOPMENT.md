@@ -74,3 +74,25 @@ pnpm -r run build
 
 Prefer existing dependencies. When a new one is required, justify it, add it to the specific
 app/package (not the root unless truly shared), and keep the lockfile committed.
+
+## Database & authentication (Phase 2)
+
+The API uses TypeORM against PostgreSQL. Schema changes are applied only through
+migrations (never `synchronize`).
+
+```bash
+# Start infra (Postgres + Redis) via Docker Compose
+docker compose up -d postgres redis
+
+# From apps/api — set DATABASE_URL and the JWT secrets first (see .env.example)
+pnpm --filter @nexora/api run migration:run   # apply migrations
+pnpm --filter @nexora/api run db:seed         # optional dev demo tenant/users
+pnpm --filter @nexora/api run test:e2e        # auth + tenant-isolation e2e tests
+```
+
+Auth flow: `POST /api/v1/auth/register` creates a tenant and its first
+`TENANT_ADMIN`; `login`/`refresh`/`logout` manage rotating JWT refresh sessions.
+Every request's tenant is derived from the signed access token, never from the
+request body — this is what enforces tenant isolation. Authorization is checked
+server-side via the `@RequirePermissions(...)` decorator and the global
+`PermissionsGuard`.

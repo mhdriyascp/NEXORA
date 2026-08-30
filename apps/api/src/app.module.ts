@@ -1,8 +1,16 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { LoggerModule } from "nestjs-pino";
+import { AuthModule } from "./auth/auth.module";
+import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
+import { PermissionsGuard } from "./auth/guards/permissions.guard";
 import { loadConfig } from "./config/configuration";
+import { DatabaseModule } from "./database/database.module";
 import { HealthModule } from "./health/health.module";
+import { TenantContextInterceptor } from "./tenant/tenant-context.interceptor";
+import { TenantModule } from "./tenant/tenant.module";
+import { UsersModule } from "./users/users.module";
 
 @Module({
   imports: [
@@ -26,7 +34,19 @@ import { HealthModule } from "./health/health.module";
         ],
       },
     }),
+    DatabaseModule,
+    TenantModule,
+    AuthModule,
+    UsersModule,
     HealthModule,
+  ],
+  providers: [
+    // Global authentication runs first; @Public() opts routes out.
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    // Then authorization enforces @RequirePermissions.
+    { provide: APP_GUARD, useClass: PermissionsGuard },
+    // Populate tenant context from the authenticated principal.
+    { provide: APP_INTERCEPTOR, useClass: TenantContextInterceptor },
   ],
 })
 export class AppModule {}
