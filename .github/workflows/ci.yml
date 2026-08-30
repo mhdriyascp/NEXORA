@@ -10,6 +10,10 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Least-privilege: CI only needs to read repository contents.
+permissions:
+  contents: read
+
 jobs:
   node:
     name: Node apps (lint · typecheck · test · build)
