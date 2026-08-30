@@ -4,6 +4,8 @@ export interface WorkerConfig {
   redisUrl: string;
   healthPort: number;
   version: string;
+  aiServiceUrl: string;
+  aiServiceToken: string;
 }
 
 export function loadWorkerConfig(): WorkerConfig {
@@ -12,6 +14,8 @@ export function loadWorkerConfig(): WorkerConfig {
     redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
     healthPort: Number.parseInt(process.env.WORKER_HEALTH_PORT ?? "4100", 10),
     version: process.env.APP_VERSION ?? "0.1.0",
+    aiServiceUrl: process.env.AI_SERVICE_URL ?? "http://localhost:8000",
+    aiServiceToken: process.env.AI_SERVICE_TOKEN ?? "",
   };
 }
 

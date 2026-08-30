@@ -80,6 +80,8 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       WORKER_HEALTH_PORT: "4100"
       REDIS_URL: redis://redis:6379
+      AI_SERVICE_URL: http://ai-service:8000
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:-}
     ports:
       - "4100:4100"
     depends_on:

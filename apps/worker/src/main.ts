@@ -2,8 +2,15 @@ import { createServer } from "node:http";
 import { Queue, Worker } from "bullmq";
 import IORedis from "ioredis";
 import pino from "pino";
+import { createAiClient } from "./ai-client";
 import { DEFAULT_JOB_OPTIONS, QUEUES, loadWorkerConfig } from "./config";
 import { buildHealth } from "./health";
+import type { EmailJob, NotificationJob } from "./jobs";
+import {
+  buildProcessors,
+  type EmailTransport,
+  type NotificationSink,
+} from "./processors";
 
 const logger = pino({ level: process.env.LOG_LEVEL ?? "info" });
 
@@ -23,18 +30,48 @@ async function main(): Promise<void> {
   );
   logger.info({ queues: Object.keys(queues) }, "queues registered");
 
-  // A representative worker. Real processors are implemented in Phase 9.
-  const worker = new Worker(
-    QUEUES.notifications,
-    async (job) => {
-      logger.info({ jobId: job.id, name: job.name }, "processing job");
-      return { processed: true };
+  // Production integrations plug in here; log-only fallbacks keep dev/CI simple.
+  const email: EmailTransport = {
+    send: async (message: EmailJob) => {
+      logger.info({ to: message.to, subject: message.subject }, "email sent");
+      return { messageId: `dev-${Date.now()}` };
     },
-    { connection },
-  );
+  };
+  const notifications: NotificationSink = {
+    deliver: async (notification: NotificationJob) => {
+      logger.info({ userId: notification.userId }, "notification delivered");
+    },
+  };
 
-  worker.on("failed", (job, err) => {
-    logger.error({ jobId: job?.id, err: err.message }, "job failed");
+  const ai = createAiClient({
+    baseUrl: config.aiServiceUrl,
+    token: config.aiServiceToken,
+  });
+  const processors = buildProcessors({ ai, email, notifications, logger });
+
+  // One BullMQ worker per queue, each bound to its typed processor.
+  const workers = Object.values(QUEUES).map((name) => {
+    const worker = new Worker(
+      name,
+      async (job) => {
+        logger.info(
+          { queue: name, jobId: job.id, jobName: job.name },
+          "processing job",
+        );
+        const processor = processors[name] as (
+          payload: unknown,
+        ) => Promise<Record<string, unknown>>;
+        return processor(job.data);
+      },
+      { connection },
+    );
+    worker.on("failed", (job, err) => {
+      logger.error(
+        { queue: name, jobId: job?.id, err: err.message },
+        "job failed",
+      );
+    });
+    return worker;
   });
 
   // Lightweight health endpoint for Docker/K8s probes.
@@ -52,7 +89,7 @@ async function main(): Promise<void> {
 
   const shutdown = async (): Promise<void> => {
     logger.info("shutting down worker");
-    await worker.close();
+    await Promise.all(workers.map((worker) => worker.close()));
     await connection.quit();
     server.close();
     process.exit(0);
