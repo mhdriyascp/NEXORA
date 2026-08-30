@@ -58,9 +58,17 @@ export function DashboardView(): React.JSX.Element {
             Signed in as {user?.fullName} · {user?.roles.join(", ")}
           </p>
         </div>
-        <Button variant="outline" onClick={() => void logout()}>
-          Sign out
-        </Button>
+        <div className="flex items-center gap-3">
+          <a
+            href="/assistant"
+            className="text-sm font-medium text-slate-700 underline-offset-4 hover:underline"
+          >
+            AI Assistant
+          </a>
+          <Button variant="outline" onClick={() => void logout()}>
+            Sign out
+          </Button>
+        </div>
       </header>
 
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
