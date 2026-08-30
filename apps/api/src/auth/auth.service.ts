@@ -64,11 +64,13 @@ export class AuthService {
   }
 
   private slugify(name: string): string {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 90);
+    const collapsed = name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    // Trim leading/trailing hyphens without a backtracking-prone regex.
+    let start = 0;
+    let end = collapsed.length;
+    while (start < end && collapsed[start] === "-") start += 1;
+    while (end > start && collapsed[end - 1] === "-") end -= 1;
+    return collapsed.slice(start, end).slice(0, 90);
   }
 
   private effectivePermissions(user: UserEntity): {
