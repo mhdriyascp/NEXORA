@@ -37,3 +37,10 @@ npm-debug.log*
 # Coverage
 coverage/
 .nyc_output/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+terraform.tfvars

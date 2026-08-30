@@ -1,0 +1,14 @@
+# NEXORA production values. Copy to terraform.tfvars and adjust per environment.
+# Never commit real terraform.tfvars containing environment-specific secrets.
+
+region      = "us-east-1"
+environment = "prod"
+
+vpc_cidr = "10.0.0.0/16"
+azs      = ["us-east-1a", "us-east-1b"]
+
+db_instance_class = "db.t3.medium"
+db_name           = "nexora"
+db_username       = "nexora"
+
+redis_node_type = "cache.t3.micro"
