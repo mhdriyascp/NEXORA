@@ -1,0 +1,19 @@
+# Non-secret configuration shared across NEXORA services. Secret values (JWT
+# secrets, DB URL, service token, LLM key) come from the `nexora-secrets` Secret
+# and must be provisioned out-of-band (e.g. External Secrets Operator backed by
+# AWS Secrets Manager). Never commit real secrets to this repository.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nexora-config
+  namespace: nexora
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  API_PORT: "4000"
+  WORKER_HEALTH_PORT: "4100"
+  WEB_ORIGIN: "https://app.nexora.example"
+  AI_SERVICE_URL: "http://ai-service:8000"
+  LLM_PROVIDER: "openai"
+  LLM_MODEL: "gpt-4o-mini"
+  NEXT_PUBLIC_API_URL: "https://api.nexora.example/api/v1"

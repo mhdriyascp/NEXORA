@@ -1,0 +1,73 @@
+# NEXORA — production compose overlay.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# This overlay hardens the base stack for production-like deployment: it pins
+# NODE_ENV=production, removes host port exposure for internal services, adds
+# restart policies and resource limits, and requires secrets to be supplied via
+# the environment (no defaults). Managed Postgres/Redis (RDS/ElastiCache) are
+# expected in real production; the containers here are for self-hosted parity.
+
+services:
+  postgres:
+    restart: always
+    ports: []
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  redis:
+    restart: always
+    ports: []
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+
+  api:
+    restart: always
+    environment:
+      NODE_ENV: production
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?JWT_ACCESS_SECRET is required}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET is required}
+      AI_SERVICE_TOKEN: ${AI_SERVICE_INTERNAL_TOKEN:?AI_SERVICE_INTERNAL_TOKEN is required}
+      WEB_ORIGIN: ${WEB_ORIGIN:?WEB_ORIGIN is required}
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512m
+
+  ai-service:
+    restart: always
+    ports: []
+    environment:
+      ENVIRONMENT: production
+      SERVICE_TOKEN: ${AI_SERVICE_INTERNAL_TOKEN:?AI_SERVICE_INTERNAL_TOKEN is required}
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  worker:
+    restart: always
+    ports: []
+    environment:
+      NODE_ENV: production
+      AI_SERVICE_TOKEN: ${AI_SERVICE_INTERNAL_TOKEN:?AI_SERVICE_INTERNAL_TOKEN is required}
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512m
+
+  web:
+    restart: always
+    environment:
+      NODE_ENV: production
+    deploy:
+      resources:
+        limits:
+          memory: 512m

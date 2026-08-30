@@ -1,0 +1,19 @@
+# Keep build contexts small and avoid leaking local artefacts/secrets.
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+**/coverage
+**/__pycache__
+**/*.pyc
+**/.venv
+**/venv
+.git
+.github
+**/.env
+**/.env.*
+!**/.env.example
+*.log
+infrastructure/kubernetes
+infrastructure/terraform
+docs

@@ -1,0 +1,25 @@
+[project]
+name = "nexora-ai-service"
+version = "0.1.0"
+description = "NEXORA AI service (LLM orchestration, RAG, AI tools)"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi==0.115.5",
+    "uvicorn[standard]==0.32.1",
+    "pydantic==2.9.2",
+    "pydantic-settings==2.6.1",
+    "httpx==0.27.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.3",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
