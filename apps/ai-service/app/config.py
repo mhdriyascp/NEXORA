@@ -29,6 +29,15 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4o-mini"
     embedding_provider: str = "openai"
     embedding_model: str = "text-embedding-3-small"
+    embedding_dimensions: int = 1536
+
+    # Provider credentials (injected via env / secrets manager; empty in dev).
+    openai_api_key: str = ""
+    openai_base_url: str = ""
+
+    # Internal service authentication. The NestJS AI gateway must present this
+    # shared token; when empty (local dev/tests) the guard is disabled.
+    service_token: str = ""
 
     # AI safety limits.
     ai_max_tokens: int = 4096

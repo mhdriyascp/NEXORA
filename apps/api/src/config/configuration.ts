@@ -16,6 +16,7 @@ export interface AppConfig {
   databaseUrl: string;
   redisUrl: string;
   aiServiceUrl: string;
+  aiServiceToken: string;
   jwt: JwtConfig;
 }
 
@@ -27,6 +28,8 @@ export function loadConfig(): AppConfig {
     databaseUrl: process.env.DATABASE_URL ?? "",
     redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
     aiServiceUrl: process.env.AI_SERVICE_URL ?? "http://localhost:8000",
+    // Shared secret presented to the AI service; empty in local dev.
+    aiServiceToken: process.env.AI_SERVICE_TOKEN ?? "",
     jwt: {
       // In development a deterministic fallback is used; production MUST set these.
       accessSecret:

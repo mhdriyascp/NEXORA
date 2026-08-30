@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { LoggerModule } from "nestjs-pino";
 import { AuthModule } from "./auth/auth.module";
+import { AiModule } from "./ai/ai.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "./auth/guards/permissions.guard";
 import { loadConfig } from "./config/configuration";
@@ -40,6 +41,7 @@ import { UsersModule } from "./users/users.module";
     AuthModule,
     UsersModule,
     CrmModule,
+    AiModule,
     HealthModule,
   ],
   providers: [

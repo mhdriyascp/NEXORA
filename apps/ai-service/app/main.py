@@ -8,6 +8,7 @@ import time
 from fastapi import FastAPI
 
 from .config import Settings, get_settings
+from .routers.ai import router as ai_router
 from .schemas import HealthResponse
 
 logging.basicConfig(
@@ -40,6 +41,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         )
 
     logger.info("ai-service application created (env=%s)", settings.environment)
+    app.include_router(ai_router)
     return app
 
 
