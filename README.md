@@ -29,7 +29,7 @@ the CRM domain layer, tenant isolation, or authorization.
 | Phase 11 | Docker Production | ✅ Complete |
 | Phase 12 | Kubernetes | ✅ Complete |
 | Phase 13 | AWS Infrastructure | ✅ Complete |
-| Phase 14 | Production Readiness | ⏳ Not started |
+| Phase 14 | Production Readiness | ✅ Complete |
 
 > **Phase 0 is documentation only.** No application code is implemented yet. This is intentional —
 > foundation code begins in Phase 1 once the architecture is agreed.
@@ -43,6 +43,8 @@ the CRM domain layer, tenant isolation, or authorization.
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture, domain boundaries, database, API, multi-tenancy, deployment, and ADRs |
 | [docs/AI_ARCHITECTURE.md](docs/AI_ARCHITECTURE.md) | AI service design, provider abstraction, RAG, AI tool-calling, memory, streaming, and evaluation |
 | [docs/SECURITY.md](docs/SECURITY.md) | Authentication, authorization (RBAC), tenant isolation, OWASP controls, audit logging, and AI safety |
+| [docs/RUNBOOK.md](docs/RUNBOOK.md) | Production deployment runbook: topology, deploy/rollback, health checks, backups & DR, scaling, incident response |
+| [docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) | Go-live production readiness checklist across security, data, reliability, observability, and deployment |
 
 Planned additional docs (created in later phases as the corresponding features land):
 `docs/DATABASE.md`, `docs/API.md`, `docs/TESTING.md`, `docs/DEPLOYMENT.md`, `docs/DEVELOPMENT.md`.
