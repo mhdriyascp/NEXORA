@@ -1,0 +1,2 @@
+# NEXORA
+AI-Powered CRM
