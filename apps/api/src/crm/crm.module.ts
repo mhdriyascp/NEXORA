@@ -52,5 +52,8 @@ import { TasksService } from "./tasks/tasks.service";
     DealsService,
     TasksService,
   ],
+  // Exported so the AI gateway can execute authorized CRM tools through the
+  // domain layer (never bypassing it).
+  exports: [ContactsService, TasksService],
 })
 export class CrmModule {}

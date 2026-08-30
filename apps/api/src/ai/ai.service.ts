@@ -7,6 +7,14 @@ import { ConfigService } from "@nestjs/config";
 import type { AppConfig } from "../config/configuration";
 import type { ChatRequestDto } from "./dto/chat.dto";
 
+/** Plan returned by the AI service for an assistant turn. */
+export interface AiPlan {
+  action: "tool_call" | "message";
+  tool_call?: { name: string; arguments: Record<string, string> };
+  message?: string;
+}
+
+
 /**
  * AI Gateway: the single trusted boundary between the CRM domain and the Python
  * AI service. It injects the tenant id (from the authenticated principal, never
@@ -54,6 +62,17 @@ export class AiService {
       text,
       metadata,
     });
+  }
+
+  /** Ask the AI service to plan an assistant turn (tool call or message). */
+  async plan(
+    tenantId: string,
+    message: string,
+  ): Promise<AiPlan> {
+    return (await this.post("/v1/ai/assistant/plan", {
+      tenant_id: tenantId,
+      message,
+    })) as AiPlan;
   }
 
   /** Forward a request to the AI service with the internal service token. */

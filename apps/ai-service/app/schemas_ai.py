@@ -80,3 +80,38 @@ class RagQueryResponse(BaseModel):
     answer: str
     sources: list[RagSource]
     usage: UsageSchema
+
+
+class ToolParameterSchema(BaseModel):
+    name: str
+    type: str
+    description: str
+    required: bool
+
+
+class ToolSpecSchema(BaseModel):
+    name: str
+    description: str
+    required_permission: str
+    parameters: list[ToolParameterSchema]
+
+
+class ToolsListResponse(BaseModel):
+    tools: list[ToolSpecSchema]
+
+
+class PlanRequest(BaseModel):
+    tenant_id: str = Field(min_length=1)
+    message: str = Field(min_length=1, max_length=8_000)
+
+
+class ToolCallSchema(BaseModel):
+    name: str
+    arguments: dict[str, str]
+
+
+class PlanResponse(BaseModel):
+    # Either the assistant wants to call a tool, or it returns a direct message.
+    action: Literal["tool_call", "message"]
+    tool_call: ToolCallSchema | None = None
+    message: str | None = None

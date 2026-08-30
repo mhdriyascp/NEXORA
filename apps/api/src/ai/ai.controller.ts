@@ -4,6 +4,8 @@ import type { AuthenticatedUser } from "../auth/auth.types";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { RequirePermissions } from "../auth/decorators/permissions.decorator";
 import { AiService } from "./ai.service";
+import { AiToolExecutor, type ToolResult } from "./ai-tool-executor.service";
+import { AssistantMessageDto } from "./dto/assistant.dto";
 import { ChatRequestDto } from "./dto/chat.dto";
 import { IngestDocumentDto, RagQueryDto } from "./dto/rag.dto";
 
@@ -11,7 +13,10 @@ import { IngestDocumentDto, RagQueryDto } from "./dto/rag.dto";
 @ApiBearerAuth()
 @Controller("ai")
 export class AiController {
-  constructor(private readonly ai: AiService) {}
+  constructor(
+    private readonly ai: AiService,
+    private readonly tools: AiToolExecutor,
+  ) {}
 
   @Post("chat")
   @RequirePermissions("ai:use")
@@ -21,6 +26,27 @@ export class AiController {
   ): Promise<unknown> {
     // tenantId always comes from the JWT principal, isolating conversations.
     return this.ai.chat(user.tenantId, dto);
+  }
+
+  @Post("assistant")
+  @RequirePermissions("ai:use")
+  async assistant(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: AssistantMessageDto,
+  ): Promise<{ answer: string; executedTool: ToolResult | null }> {
+    const plan = await this.ai.plan(user.tenantId, dto.message);
+
+    if (plan.action === "tool_call" && plan.tool_call) {
+      // Execute through the CRM domain layer; RBAC is enforced per tool.
+      const result = await this.tools.execute(
+        user.tenantId,
+        user.permissions,
+        plan.tool_call,
+      );
+      return { answer: result.summary, executedTool: result };
+    }
+
+    return { answer: plan.message ?? "", executedTool: null };
   }
 
   @Post("rag/query")
