@@ -1,4 +1,11 @@
 import { DataSource, DataSourceOptions } from "typeorm";
+import { CompanyEntity } from "../crm/entities/company.entity";
+import { ContactEntity } from "../crm/entities/contact.entity";
+import { DealEntity } from "../crm/entities/deal.entity";
+import { LeadEntity } from "../crm/entities/lead.entity";
+import { PipelineEntity } from "../crm/entities/pipeline.entity";
+import { StageEntity } from "../crm/entities/stage.entity";
+import { TaskEntity } from "../crm/entities/task.entity";
 import { PermissionEntity } from "./entities/permission.entity";
 import { RoleEntity } from "./entities/role.entity";
 import { SessionEntity } from "./entities/session.entity";
@@ -16,6 +23,13 @@ export const entities = [
   RoleEntity,
   PermissionEntity,
   SessionEntity,
+  CompanyEntity,
+  ContactEntity,
+  LeadEntity,
+  PipelineEntity,
+  StageEntity,
+  DealEntity,
+  TaskEntity,
 ];
 
 export function buildDataSourceOptions(

@@ -6,6 +6,7 @@ import { AuthModule } from "./auth/auth.module";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "./auth/guards/permissions.guard";
 import { loadConfig } from "./config/configuration";
+import { CrmModule } from "./crm/crm.module";
 import { DatabaseModule } from "./database/database.module";
 import { HealthModule } from "./health/health.module";
 import { TenantContextInterceptor } from "./tenant/tenant-context.interceptor";
@@ -38,6 +39,7 @@ import { UsersModule } from "./users/users.module";
     TenantModule,
     AuthModule,
     UsersModule,
+    CrmModule,
     HealthModule,
   ],
   providers: [

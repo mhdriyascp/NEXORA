@@ -92,3 +92,25 @@ export const PERMISSIONS = [
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
+
+/** CRM lead lifecycle stages. */
+export const LEAD_STATUSES = [
+  "NEW",
+  "CONTACTED",
+  "QUALIFIED",
+  "UNQUALIFIED",
+  "CONVERTED",
+] as const;
+export type LeadStatus = (typeof LEAD_STATUSES)[number];
+
+/** CRM deal outcome states (open until won/lost). */
+export const DEAL_STATUSES = ["OPEN", "WON", "LOST"] as const;
+export type DealStatus = (typeof DEAL_STATUSES)[number];
+
+/** CRM task states. */
+export const TASK_STATUSES = ["OPEN", "IN_PROGRESS", "DONE", "CANCELLED"] as const;
+export type TaskStatus = (typeof TASK_STATUSES)[number];
+
+/** Priority scale shared by tasks and (optionally) other CRM records. */
+export const PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
+export type Priority = (typeof PRIORITIES)[number];
